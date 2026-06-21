@@ -2,10 +2,13 @@
   "version": 2,
   "functions": {
     "server.ts": {
-      "runtime": "edge"
+      "runtime": "edge-runtime@4.0.0"
     }
   },
   "routes": [
-    { "src": "/(.*)", "dest": "server.ts" }
+    {
+      "src": "/(.*)",
+      "dest": "server.ts"
+    }
   ]
 }
