@@ -1,55 +1,50 @@
 /**
  * patch-vercel-output.mjs
  *
- * Nitro traces only the files it detects as imported, but tslib's package.json
- * declares an `exports` map where `import > node` resolves to `./modules/index.js`.
- * Node.js 22 ESM loader tries that path first and throws ERR_MODULE_NOT_FOUND
- * because Nitro only copied tslib.es6.mjs and package.json.
+ * Nitro generates __server.func/package.json with a `dependencies` field
+ * listing tslib. Vercel sees this and does NOT treat the node_modules/ folder
+ * that Nitro already copied as the resolved dependency — instead it leaves
+ * resolution to Node's ESM loader at runtime, which fails because
+ * _libs/supabase__*.mjs files sit in /var/task/_libs/ and not at the root.
  *
- * Fix: copy the missing tslib files into the Vercel function output so that
- * every entry in the exports map resolves correctly at runtime.
+ * Fixes applied:
+ * 1. Copy all missing tslib files (modules/index.js etc.) into the output.
+ * 2. Strip `dependencies` from the generated package.json so Vercel treats
+ *    the function folder as fully self-contained with no installs needed.
  */
 
-import { cpSync, existsSync, mkdirSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
+const funcDir = join(root, ".vercel", "output", "functions", "__server.func");
 
-const src = join(root, "node_modules", "tslib");
-const dest = join(
-  root,
-  ".vercel",
-  "output",
-  "functions",
-  "__server.func",
-  "node_modules",
-  "tslib",
-);
-
-if (!existsSync(dest)) {
-  console.log("[patch] tslib output dir not found, skipping.");
+if (!existsSync(funcDir)) {
+  console.log("[patch] __server.func not found, skipping.");
   process.exit(0);
 }
 
-// Copy tslib.js (CJS fallback) and modules/ folder (ESM node entry)
-const filesToCopy = ["tslib.js", "tslib.es6.js", "tslib.d.ts"];
-for (const f of filesToCopy) {
-  const srcFile = join(src, f);
-  if (existsSync(srcFile)) {
-    cpSync(srcFile, join(dest, f));
-    console.log(`[patch] copied tslib/${f}`);
+// ── 1. Copy missing tslib files ──────────────────────────────────────────────
+const tslibSrc = join(root, "node_modules", "tslib");
+const tslibDest = join(funcDir, "node_modules", "tslib");
+
+mkdirSync(tslibDest, { recursive: true });
+
+// Full copy of the tslib package so every exports map entry resolves
+cpSync(tslibSrc, tslibDest, { recursive: true, force: true });
+console.log("[patch] copied tslib package completely");
+
+// ── 2. Strip `dependencies` from the generated package.json ─────────────────
+const pkgPath = join(funcDir, "package.json");
+if (existsSync(pkgPath)) {
+  const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
+  if (pkg.dependencies) {
+    delete pkg.dependencies;
+    writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
+    console.log("[patch] removed `dependencies` from __server.func/package.json");
   }
 }
 
-// Copy modules/ directory
-const modulesDir = join(src, "modules");
-if (existsSync(modulesDir)) {
-  const destModules = join(dest, "modules");
-  mkdirSync(destModules, { recursive: true });
-  cpSync(modulesDir, destModules, { recursive: true });
-  console.log("[patch] copied tslib/modules/");
-}
-
-console.log("[patch] tslib output patched successfully.");
+console.log("[patch] done.");
