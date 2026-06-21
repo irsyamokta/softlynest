@@ -1,0 +1,168 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Softlynest Design System
+   Warm, calming, safe-space aesthetic.
+   Beige/tan canvas, cream cards, cyan primary, pink/yellow/brown accents.
+*/
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-nest: var(--nest);
+  --color-nest-foreground: var(--nest-foreground);
+  --color-cream: var(--cream);
+  --color-pink: var(--pink);
+  --color-yellow: var(--yellow);
+  --color-cyan: var(--cyan);
+  --color-cyan-light: var(--cyan-light);
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+}
+
+:root {
+  --radius: 1.25rem;
+
+  /* Brand palette */
+  --nest: #d3c48b;          /* warm tan/khaki */
+  --nest-foreground: #b3966a; /* darker brown */
+  --cream: #f5f2f2;        /* off white */
+  --cyan: #6bd8ed;         /* softlynest accent cyan */
+  --cyan-light: #c0f5ff;   /* light cyan */
+  --pink: #f03d6f;         /* like pink */
+  --yellow: #ffe32b;       /* favorite yellow */
+  --gray: #bcbcbc;         /* gray */
+
+  --background: var(--cream);
+  --foreground: var(--nest-foreground);
+
+  --card: var(--cream);
+  --card-foreground: var(--nest-foreground);
+  --popover: var(--cream);
+  --popover-foreground: var(--nest-foreground);
+
+  --primary: var(--cyan);
+  --primary-foreground: #ffffff;
+
+  --secondary: var(--cream);
+  --secondary-foreground: var(--nest-foreground);
+
+  --muted: #f0f0f0;
+  --muted-foreground: var(--gray);
+
+  --accent: var(--yellow);
+  --accent-foreground: var(--nest-foreground);
+
+  --destructive: var(--pink);
+  --destructive-foreground: #ffffff;
+
+  --border: var(--nest-foreground);
+  --input: var(--gray);
+  --ring: var(--cyan);
+
+  --font-display: "Sarina", "Brush Script MT", cursive;
+  --font-sans: "Open Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html, body { height: 100%; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Decorative scalloped edge matching the reference image */
+.scallop-top {
+  -webkit-mask-image: 
+    linear-gradient(to top, black, black),
+    radial-gradient(circle at 32px 32px, black 32px, transparent 33px);
+  -webkit-mask-size: 100% calc(100% - 32px), 64px 32px;
+  -webkit-mask-position: bottom left, top left;
+  -webkit-mask-repeat: no-repeat, repeat-x;
+  
+  mask-image: 
+    linear-gradient(to top, black, black),
+    radial-gradient(circle at 32px 32px, black 32px, transparent 33px);
+  mask-size: 100% calc(100% - 32px), 64px 32px;
+  mask-position: bottom left, top left;
+  mask-repeat: no-repeat, repeat-x;
+}
+.scallop-bottom {
+  -webkit-mask-image: 
+    linear-gradient(to bottom, black, black),
+    radial-gradient(circle at 32px 0, black 32px, transparent 33px);
+  -webkit-mask-size: 100% calc(100% - 32px), 64px 32px;
+  -webkit-mask-position: top left, bottom left;
+  -webkit-mask-repeat: no-repeat, repeat-x;
+
+  mask-image: 
+    linear-gradient(to bottom, black, black),
+    radial-gradient(circle at 32px 0, black 32px, transparent 33px);
+  mask-size: 100% calc(100% - 32px), 64px 32px;
+  mask-position: top left, bottom left;
+  mask-repeat: no-repeat, repeat-x;
+}
+
+.logo-script {
+  font-family: var(--font-display);
+  letter-spacing: 0.5px;
+}
+
+.soft-shadow {
+  box-shadow: 0 8px 24px -12px oklch(0.3 0.05 70 / 0.25);
+}
+
+/* Modern scrollbar for chat room */
+.chat-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.chat-scroll.can-scroll {
+  scrollbar-color: oklch(0.8 0.03 200 / 0.35) transparent;
+}
+.chat-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.chat-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.chat-scroll::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 99px;
+}
+.chat-scroll.can-scroll::-webkit-scrollbar-thumb {
+  background-color: oklch(0.8 0.03 200 / 0.35);
+}
+.chat-scroll::-webkit-scrollbar-button {
+  display: none;
+}
