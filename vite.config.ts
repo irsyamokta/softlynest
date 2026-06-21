@@ -6,15 +6,10 @@ export default defineConfig({
 
   vite: {
     ssr: {
-      external: [
-        "@prisma/client",
-        "@prisma/adapter-pg",
-        ".prisma/client",
-        "pg",
-        "pg-pool",
-        "dotenv",
-        "cloudinary",
-      ],
+      // Only keep packages that truly cannot be bundled (native node addons).
+      // @prisma/client with adapter-pg uses pure JS — it must be bundled so
+      // Vercel's serverless function is fully self-contained.
+      external: ["pg-native"],
     },
   },
 });
