@@ -48,9 +48,10 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # Cache layer antar build supaya lebih cepat
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          # Tampilkan log build secara detail
+          provenance: false
 
       - name: Deploy on VPS via SSH
         uses: appleboy/ssh-action@v1.0.3
