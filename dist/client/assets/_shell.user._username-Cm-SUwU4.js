@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-CVYwdr5Z.js";import{n as t}from"./index-Dwcasz4F.js";import{t as n}from"./ProfileContent-CLloZlSg.js";var r=e();function i(){let{username:e}=t.useParams();return(0,r.jsx)(`div`,{className:`w-full`,children:(0,r.jsx)(n,{username:e})})}export{i as component};
