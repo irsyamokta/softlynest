@@ -223,7 +223,7 @@ function compareAsc(dateLeft, dateRight) {
 * @returns Current date initialized using the given date constructor
 *
 * @example
-* import { constructNow, isSameDay } from 'date-fns'
+* import { constructNow, isSameDay } from "./date-fns.mjs"
 *
 * function isToday<DateType extends Date>(
 *   date: DateArg<DateType>,
@@ -1104,7 +1104,7 @@ var enUS = {
 *
 * @example
 * // What is the distance between 1 August 2016 and 1 January 2015 in Esperanto?
-* import { eoLocale } from 'date-fns/locale/eo'
+* import { eoLocale } from "./date-fns.mjs"
 * const result = formatDistance(new Date(2016, 7, 1), new Date(2015, 0, 1), {
 *   locale: eoLocale
 * })

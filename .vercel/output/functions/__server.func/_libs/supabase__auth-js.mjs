@@ -30,7 +30,7 @@ var BASE64URL_REGEX = /^([a-z0-9_-]{4})*($|[a-z0-9_-]{3}$|[a-z0-9_-]{2}$)$/i;
 *
 * @example
 * ```ts
-* import { AuthError } from '@supabase/auth-js'
+* import { AuthError } from "./supabase__auth-js.mjs"
 *
 * throw new AuthError('Unexpected auth error', 500, 'unexpected')
 * ```
@@ -60,7 +60,7 @@ function isAuthError(error) {
 *
 * @example
 * ```ts
-* import { AuthApiError } from '@supabase/auth-js'
+* import { AuthApiError } from "./supabase__auth-js.mjs"
 *
 * throw new AuthApiError('Invalid credentials', 400, 'invalid_credentials')
 * ```
@@ -81,7 +81,7 @@ function isAuthApiError(error) {
 *
 * @example
 * ```ts
-* import { AuthUnknownError } from '@supabase/auth-js'
+* import { AuthUnknownError } from "./supabase__auth-js.mjs"
 *
 * try {
 *   await someAuthCall()
@@ -102,7 +102,7 @@ var AuthUnknownError = class extends AuthError {
 *
 * @example
 * ```ts
-* import { CustomAuthError } from '@supabase/auth-js'
+* import { CustomAuthError } from "./supabase__auth-js.mjs"
 *
 * throw new CustomAuthError('My custom auth error', 'MyAuthError', 400, 'custom_code')
 * ```
@@ -119,7 +119,7 @@ var CustomAuthError = class extends AuthError {
 *
 * @example
 * ```ts
-* import { AuthSessionMissingError } from '@supabase/auth-js'
+* import { AuthSessionMissingError } from "./supabase__auth-js.mjs"
 *
 * throw new AuthSessionMissingError()
 * ```
@@ -137,7 +137,7 @@ function isAuthSessionMissingError(error) {
 *
 * @example
 * ```ts
-* import { AuthInvalidTokenResponseError } from '@supabase/auth-js'
+* import { AuthInvalidTokenResponseError } from "./supabase__auth-js.mjs"
 *
 * throw new AuthInvalidTokenResponseError()
 * ```
@@ -152,7 +152,7 @@ var AuthInvalidTokenResponseError = class extends CustomAuthError {
 *
 * @example
 * ```ts
-* import { AuthInvalidCredentialsError } from '@supabase/auth-js'
+* import { AuthInvalidCredentialsError } from "./supabase__auth-js.mjs"
 *
 * throw new AuthInvalidCredentialsError('Email or password is incorrect')
 * ```
@@ -167,7 +167,7 @@ var AuthInvalidCredentialsError = class extends CustomAuthError {
 *
 * @example
 * ```ts
-* import { AuthImplicitGrantRedirectError } from '@supabase/auth-js'
+* import { AuthImplicitGrantRedirectError } from "./supabase__auth-js.mjs"
 *
 * throw new AuthImplicitGrantRedirectError('OAuth redirect failed', {
 *   error: 'access_denied',
@@ -193,7 +193,7 @@ function isAuthImplicitGrantRedirectError(error) {
 *
 * @example
 * ```ts
-* import { AuthPKCEGrantCodeExchangeError } from '@supabase/auth-js'
+* import { AuthPKCEGrantCodeExchangeError } from "./supabase__auth-js.mjs"
 *
 * throw new AuthPKCEGrantCodeExchangeError('PKCE exchange failed')
 * ```
@@ -215,7 +215,7 @@ var AuthPKCEGrantCodeExchangeError = class extends CustomAuthError {
 *
 * @example
 * ```ts
-* import { AuthPKCECodeVerifierMissingError } from '@supabase/auth-js'
+* import { AuthPKCECodeVerifierMissingError } from "./supabase__auth-js.mjs"
 *
 * throw new AuthPKCECodeVerifierMissingError()
 * ```
@@ -230,7 +230,7 @@ var AuthPKCECodeVerifierMissingError = class extends CustomAuthError {
 *
 * @example
 * ```ts
-* import { AuthRetryableFetchError } from '@supabase/auth-js'
+* import { AuthRetryableFetchError } from "./supabase__auth-js.mjs"
 *
 * throw new AuthRetryableFetchError('Service temporarily unavailable', 503)
 * ```
@@ -256,7 +256,7 @@ function isAuthRetryableFetchError(error) {
 *
 * @example
 * ```ts
-* import { isAuthRefreshDiscardedError } from '@supabase/auth-js'
+* import { isAuthRefreshDiscardedError } from "./supabase__auth-js.mjs"
 *
 * if (isAuthRefreshDiscardedError(error)) {
 *   // Concurrent signOut/sign-in raced our refresh. Treat as a no-op.
@@ -281,7 +281,7 @@ function isAuthRefreshDiscardedError(error) {
 *
 * @example
 * ```ts
-* import { AuthWeakPasswordError } from '@supabase/auth-js'
+* import { AuthWeakPasswordError } from "./supabase__auth-js.mjs"
 *
 * throw new AuthWeakPasswordError('Password too short', 400, ['min_length'])
 * ```
@@ -300,7 +300,7 @@ var AuthWeakPasswordError = class extends CustomAuthError {
 *
 * @example
 * ```ts
-* import { AuthInvalidJwtError } from '@supabase/auth-js'
+* import { AuthInvalidJwtError } from "./supabase__auth-js.mjs"
 *
 * throw new AuthInvalidJwtError('Token signature is invalid')
 * ```
@@ -957,7 +957,7 @@ var GoTrueAdminApi = class {
 	*
 	* @example Using supabase-js (recommended)
 	* ```ts
-	* import { createClient } from '@supabase/supabase-js'
+	* import { createClient } from "./supabase__supabase-js.mjs"
 	*
 	* const supabase = createClient('https://xyzcompany.supabase.co', 'your-secret-key')
 	* const { data, error } = await supabase.auth.admin.listUsers()
@@ -965,7 +965,7 @@ var GoTrueAdminApi = class {
 	*
 	* @example Standalone import for bundle-sensitive environments
 	* ```ts
-	* import { GoTrueAdminApi } from '@supabase/auth-js'
+	* import { GoTrueAdminApi } from "./supabase__auth-js.mjs"
 	*
 	* const admin = new GoTrueAdminApi({
 	*   url: 'https://xyzcompany.supabase.co/auth/v1',
@@ -3047,7 +3047,7 @@ var GoTrueClient = class GoTrueClient {
 	*
 	* @example Using supabase-js (recommended)
 	* ```ts
-	* import { createClient } from '@supabase/supabase-js'
+	* import { createClient } from "./supabase__supabase-js.mjs"
 	*
 	* const supabase = createClient('https://xyzcompany.supabase.co', 'your-publishable-key')
 	* const { data, error } = await supabase.auth.getUser()
@@ -3055,7 +3055,7 @@ var GoTrueClient = class GoTrueClient {
 	*
 	* @example Standalone import for bundle-sensitive environments
 	* ```ts
-	* import { GoTrueClient } from '@supabase/auth-js'
+	* import { GoTrueClient } from "./supabase__auth-js.mjs"
 	*
 	* const auth = new GoTrueClient({
 	*   url: 'https://xyzcompany.supabase.co/auth/v1',

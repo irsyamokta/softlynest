@@ -399,7 +399,7 @@ var SupabaseClient = class {
 	*
 	* @example Creating a client
 	* ```js
-	* import { createClient } from '@supabase/supabase-js'
+	* import { createClient } from "./supabase__supabase-js.mjs"
 	*
 	* // Create a single supabase client for interacting with your database
 	* const supabase = createClient('https://xyzcompany.supabase.co', 'your-publishable-key')
@@ -407,7 +407,7 @@ var SupabaseClient = class {
 	*
 	* @example With a custom domain
 	* ```js
-	* import { createClient } from '@supabase/supabase-js'
+	* import { createClient } from "./supabase__supabase-js.mjs"
 	*
 	* // Use a custom domain as the supabase URL
 	* const supabase = createClient('https://my-custom-domain.com', 'your-publishable-key')
@@ -415,7 +415,7 @@ var SupabaseClient = class {
 	*
 	* @example With additional parameters
 	* ```js
-	* import { createClient } from '@supabase/supabase-js'
+	* import { createClient } from "./supabase__supabase-js.mjs"
 	*
 	* const options = {
 	*   db: {
@@ -441,7 +441,7 @@ var SupabaseClient = class {
 	*
 	* @example With custom schemas
 	* ```js
-	* import { createClient } from '@supabase/supabase-js'
+	* import { createClient } from "./supabase__supabase-js.mjs"
 	*
 	* const supabase = createClient('https://xyzcompany.supabase.co', 'your-publishable-key', {
 	*   // Provide a custom schema. Defaults to "public".
@@ -456,7 +456,7 @@ var SupabaseClient = class {
 	*
 	* @example Custom fetch implementation
 	* ```js
-	* import { createClient } from '@supabase/supabase-js'
+	* import { createClient } from "./supabase__supabase-js.mjs"
 	*
 	* const supabase = createClient('https://xyzcompany.supabase.co', 'your-publishable-key', {
 	*   global: { fetch: fetch.bind(globalThis) }
@@ -469,7 +469,7 @@ var SupabaseClient = class {
 	* @example React Native options with AsyncStorage
 	* ```js
 	* import 'react-native-url-polyfill/auto'
-	* import { createClient } from '@supabase/supabase-js'
+	* import { createClient } from "./supabase__supabase-js.mjs"
 	* import AsyncStorage from "@react-native-async-storage/async-storage";
 	*
 	* const supabase = createClient("https://xyzcompany.supabase.co", "your-publishable-key", {
@@ -497,7 +497,7 @@ var SupabaseClient = class {
 	* @example React Native options with Expo SecureStore
 	* ```ts
 	* import 'react-native-url-polyfill/auto'
-	* import { createClient } from '@supabase/supabase-js'
+	* import { createClient } from "./supabase__supabase-js.mjs"
 	* import AsyncStorage from '@react-native-async-storage/async-storage';
 	* import * as SecureStore from 'expo-secure-store';
 	* import * as aesjs from 'aes-js';
@@ -561,7 +561,7 @@ var SupabaseClient = class {
 	*
 	* @example With a database query
 	* ```ts
-	* import { createClient } from '@supabase/supabase-js'
+	* import { createClient } from "./supabase__supabase-js.mjs"
 	*
 	* const supabase = createClient('https://xyzcompany.supabase.co', 'your-publishable-key')
 	*
@@ -576,7 +576,7 @@ var SupabaseClient = class {
 	*
 	* @example With OpenTelemetry tracing
 	* ```ts
-	* import { createClient } from '@supabase/supabase-js'
+	* import { createClient } from "./supabase__supabase-js.mjs"
 	* import { trace } from '@opentelemetry/api'
 	*
 	* const supabase = createClient('https://xyzcompany.supabase.co', 'your-publishable-key', {
@@ -813,7 +813,7 @@ var SupabaseClient = class {
 *
 * @example Creating a Supabase client
 * ```ts
-* import { createClient } from '@supabase/supabase-js'
+* import { createClient } from "./supabase__supabase-js.mjs"
 *
 * const supabase = createClient('https://xyzcompany.supabase.co', 'your-publishable-key')
 * const { data, error } = await supabase.from('profiles').select('*')

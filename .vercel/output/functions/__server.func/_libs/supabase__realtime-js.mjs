@@ -762,7 +762,7 @@ var RealtimeChannel = class RealtimeChannel {
 	*
 	* @example Using supabase-js (recommended)
 	* ```ts
-	* import { createClient } from '@supabase/supabase-js'
+	* import { createClient } from "./supabase__supabase-js.mjs"
 	*
 	* const supabase = createClient('https://xyzcompany.supabase.co', 'your-publishable-key')
 	* const channel = supabase.channel('room1')
@@ -773,7 +773,7 @@ var RealtimeChannel = class RealtimeChannel {
 	*
 	* @example Standalone import for bundle-sensitive environments
 	* ```ts
-	* import RealtimeClient from '@supabase/realtime-js'
+	* import RealtimeClient from "./supabase__realtime-js.mjs"
 	*
 	* const client = new RealtimeClient('https://xyzcompany.supabase.co/realtime/v1', {
 	*   params: { apikey: 'your-publishable-key' },
@@ -1591,7 +1591,7 @@ var RealtimeClient = class {
 	*
 	* @example Using supabase-js (recommended)
 	* ```ts
-	* import { createClient } from '@supabase/supabase-js'
+	* import { createClient } from "./supabase__supabase-js.mjs"
 	*
 	* const supabase = createClient('https://xyzcompany.supabase.co', 'your-publishable-key')
 	* const channel = supabase.channel('room1')
@@ -1602,7 +1602,7 @@ var RealtimeClient = class {
 	*
 	* @example Standalone import for bundle-sensitive environments
 	* ```ts
-	* import RealtimeClient from '@supabase/realtime-js'
+	* import RealtimeClient from "./supabase__realtime-js.mjs"
 	*
 	* const client = new RealtimeClient('https://xyzcompany.supabase.co/realtime/v1', {
 	*   params: { apikey: 'your-publishable-key' },

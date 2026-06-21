@@ -11,7 +11,7 @@ var resolveFetch = (customFetch) => {
 *
 * @example
 * ```ts
-* import { FunctionsError } from '@supabase/functions-js'
+* import { FunctionsError } from "./supabase__functions-js.mjs"
 *
 * throw new FunctionsError('Unexpected error invoking function', 'FunctionsError', {
 *   requestId: 'abc123',
@@ -37,7 +37,7 @@ var FunctionsError = class extends Error {
 *
 * @example
 * ```ts
-* import { FunctionsFetchError } from '@supabase/functions-js'
+* import { FunctionsFetchError } from "./supabase__functions-js.mjs"
 *
 * throw new FunctionsFetchError({ requestId: 'abc123' })
 * ```
@@ -52,7 +52,7 @@ var FunctionsFetchError = class extends FunctionsError {
 *
 * @example
 * ```ts
-* import { FunctionsRelayError } from '@supabase/functions-js'
+* import { FunctionsRelayError } from "./supabase__functions-js.mjs"
 *
 * throw new FunctionsRelayError({ region: 'us-east-1' })
 * ```
@@ -67,7 +67,7 @@ var FunctionsRelayError = class extends FunctionsError {
 *
 * @example
 * ```ts
-* import { FunctionsHttpError } from '@supabase/functions-js'
+* import { FunctionsHttpError } from "./supabase__functions-js.mjs"
 *
 * throw new FunctionsHttpError({ status: 500 })
 * ```
@@ -106,7 +106,7 @@ var FunctionsClient = class {
 	*
 	* @example Using supabase-js (recommended)
 	* ```ts
-	* import { createClient } from '@supabase/supabase-js'
+	* import { createClient } from "./supabase__supabase-js.mjs"
 	*
 	* const supabase = createClient('https://xyzcompany.supabase.co', 'your-publishable-key')
 	* const { data, error } = await supabase.functions.invoke('hello-world')
@@ -116,7 +116,7 @@ var FunctionsClient = class {
 	*
 	* @example Standalone import for bundle-sensitive environments
 	* ```ts
-	* import { FunctionsClient, FunctionRegion } from '@supabase/functions-js'
+	* import { FunctionsClient, FunctionRegion } from "./supabase__functions-js.mjs"
 	*
 	* const functions = new FunctionsClient('https://xyzcompany.supabase.co/functions/v1', {
 	*   headers: { apikey: 'your-publishable-key' },
@@ -175,7 +175,7 @@ var FunctionsClient = class {
 	*
 	* @example Error handling
 	* ```js
-	* import { FunctionsHttpError, FunctionsRelayError, FunctionsFetchError } from "@supabase/supabase-js";
+	* import { FunctionsHttpError, FunctionsRelayError, FunctionsFetchError } from "./supabase__supabase-js.mjs";
 	*
 	* const { data, error } = await supabase.functions.invoke('hello', {
 	*   headers: {
@@ -241,7 +241,7 @@ var FunctionsClient = class {
 	*
 	* @example Invoking a Function in the UsEast1 region
 	* ```js
-	* import { createClient, FunctionRegion } from '@supabase/supabase-js'
+	* import { createClient, FunctionRegion } from "./supabase__supabase-js.mjs"
 	*
 	* const { data, error } = await supabase.functions.invoke('hello', {
 	*   body: { foo: 'bar' },

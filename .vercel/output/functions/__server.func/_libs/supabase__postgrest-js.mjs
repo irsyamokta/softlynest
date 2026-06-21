@@ -53,7 +53,7 @@ var PostgrestError = class extends Error {
 	/**
 	* @example
 	* ```ts
-	* import PostgrestError from '@supabase/postgrest-js'
+	* import PostgrestError from "./supabase__postgrest-js.mjs"
 	*
 	* throw new PostgrestError({
 	*   message: 'Row level security prevented the request',
@@ -116,7 +116,7 @@ var PostgrestBuilder = class {
 	*
 	* @example Using supabase-js (recommended)
 	* ```ts
-	* import { createClient } from '@supabase/supabase-js'
+	* import { createClient } from "./supabase__supabase-js.mjs"
 	*
 	* const supabase = createClient('https://xyzcompany.supabase.co', 'your-publishable-key')
 	* const { data, error } = await supabase.from('users').select('*')
@@ -126,7 +126,7 @@ var PostgrestBuilder = class {
 	*
 	* @example Standalone import for bundle-sensitive environments
 	* ```ts
-	* import { PostgrestQueryBuilder } from '@supabase/postgrest-js'
+	* import { PostgrestQueryBuilder } from "./supabase__postgrest-js.mjs"
 	*
 	* const builder = new PostgrestQueryBuilder(
 	*   new URL('https://xyzcompany.supabase.co/rest/v1/users'),
@@ -3190,7 +3190,7 @@ var PostgrestQueryBuilder = class {
 	*
 	* @example Using supabase-js (recommended)
 	* ```ts
-	* import { createClient } from '@supabase/supabase-js'
+	* import { createClient } from "./supabase__supabase-js.mjs"
 	*
 	* const supabase = createClient('https://xyzcompany.supabase.co', 'your-publishable-key')
 	* const { data, error } = await supabase.from('users').select('*')
@@ -3198,7 +3198,7 @@ var PostgrestQueryBuilder = class {
 	*
 	* @example Standalone import for bundle-sensitive environments
 	* ```ts
-	* import { PostgrestQueryBuilder } from '@supabase/postgrest-js'
+	* import { PostgrestQueryBuilder } from "./supabase__postgrest-js.mjs"
 	*
 	* const query = new PostgrestQueryBuilder(
 	*   new URL('https://xyzcompany.supabase.co/rest/v1/users'),
@@ -4823,7 +4823,7 @@ var PostgrestClient = class PostgrestClient {
 	*   with exponential backoff (1s, 2s, 4s). Defaults to `true`.
 	* @example Using supabase-js (recommended)
 	* ```ts
-	* import { createClient } from '@supabase/supabase-js'
+	* import { createClient } from "./supabase__supabase-js.mjs"
 	*
 	* const supabase = createClient('https://xyzcompany.supabase.co', 'your-publishable-key')
 	* const { data, error } = await supabase.from('profiles').select('*')
@@ -4837,7 +4837,7 @@ var PostgrestClient = class PostgrestClient {
 	*
 	* @example Standalone import for bundle-sensitive environments
 	* ```ts
-	* import { PostgrestClient } from '@supabase/postgrest-js'
+	* import { PostgrestClient } from "./supabase__postgrest-js.mjs"
 	*
 	* const postgrest = new PostgrestClient('https://xyzcompany.supabase.co/rest/v1', {
 	*   headers: { apikey: 'your-publishable-key' },
