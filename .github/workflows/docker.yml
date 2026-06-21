@@ -43,7 +43,10 @@ jobs:
 
       - name: Test build (no push, full logs)
         run: |
-          docker build --progress=plain --no-cache -t softlynest-test . 2>&1
+          docker build --progress=plain --no-cache \
+            --build-arg VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }} \
+            --build-arg VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }} \
+            -t softlynest-test . 2>&1
         continue-on-error: false
 
       - name: Build and push
@@ -56,9 +59,10 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: false
-          # Tampilkan semua log build secara detail
           build-args: |
             BUILDKIT_PROGRESS=plain
+            VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}
+            VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: Deploy on VPS via SSH
         uses: appleboy/ssh-action@v1.0.3
