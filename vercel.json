@@ -1,0 +1,9 @@
+{
+  "buildCommand": "vite build",
+  "outputDirectory": ".output/public",
+  "functions": {
+    "server/.output/server/index.mjs": {
+      "runtime": "nodejs22.x"
+    }
+  }
+}
