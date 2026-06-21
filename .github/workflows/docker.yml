@@ -46,6 +46,8 @@ jobs:
           docker build --progress=plain --no-cache \
             --build-arg VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }} \
             --build-arg VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }} \
+            --build-arg SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }} \
+            --build-arg SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }} \
             -t softlynest-test . 2>&1
         continue-on-error: false
 
@@ -60,9 +62,10 @@ jobs:
           cache-to: type=gha,mode=max
           provenance: false
           build-args: |
-            BUILDKIT_PROGRESS=plain
             VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}
             VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }}
+            SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}
+            SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
       - name: Deploy on VPS via SSH
         uses: appleboy/ssh-action@v1.0.3

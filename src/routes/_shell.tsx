@@ -9,6 +9,7 @@ import { SideNav } from "@/components/softly/SideNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { useAppBadge } from "@/hooks/useAppBadge";
+import { preloadSounds } from "@/lib/sounds";
 
 export const Route = createFileRoute("/_shell")({
   component: ShellLayout,
@@ -17,11 +18,14 @@ export const Route = createFileRoute("/_shell")({
 function ShellLayout() {
   const matchRoute = useMatchRoute();
   const isChatRoomActive = matchRoute({ to: "/messages/$messageId", fuzzy: true });
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   useAppBadge();
+
+  // Pre-fetch and decode sound file early so first notification plays instantly
+  useEffect(() => { preloadSounds(); }, []);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -33,8 +37,15 @@ function ShellLayout() {
     if (!loading && user) {
       const email = user.email || "";
       const username = user.user_metadata?.username || email.split("@")[0] || "user";
-      syncUserToPrismaFn({ data: { id: user.id, email, username } }).catch((err) => {
+      syncUserToPrismaFn({ data: { id: user.id, email, username } }).catch(async (err) => {
         console.error("Shell layout user sync error:", err);
+        // If the auth session is no longer valid (e.g. user deleted from auth),
+        // force sign out so they don't get stuck in a broken state.
+        const { data } = await supabase.auth.getUser();
+        if (!data.user) {
+          await signOut();
+          navigate({ to: "/" });
+        }
       });
     }
   }, [user, loading]);

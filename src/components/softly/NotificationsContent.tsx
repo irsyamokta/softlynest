@@ -114,23 +114,33 @@ export function NotificationsContent() {
     queryKey: ["notifications", user?.id],
     queryFn: () => getNotificationsFn({ data: user!.id }),
     enabled: !!user?.id,
+    refetchInterval: 10000, // Poll every 10 seconds as fallback
   });
 
-  // Remove auto-mark-all-read on page open — now done per-click
-
-  // Realtime: refetch when new notification arrives (no filter - check userId in callback)
+  // Realtime via Supabase postgres_changes (works if Notification table
+  // has realtime enabled in Supabase dashboard → Database → Replication)
   useEffect(() => {
     if (!user?.id) return;
-    const channel = supabase.channel(`notifications-page-${user.id}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "Notification" }, (payload) => {
-        // Only update if this notification is for the current user
-        if (payload.new?.userId === user.id) {
-          refetch();
+    const channel = supabase
+      .channel(`notifications-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "Notification",
+          filter: `userId=eq.${user.id}`,
+        },
+        () => {
+          // invalidate triggers a background refetch — no visible delay
+          queryClient.invalidateQueries({ queryKey: ["notifications", user.id] });
         }
-      })
+      )
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [user?.id, refetch]);
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, queryClient]);
 
   const handleMarkRead = (id: string) => {
     if (!user?.id) return;

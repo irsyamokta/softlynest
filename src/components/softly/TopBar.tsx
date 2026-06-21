@@ -3,7 +3,7 @@ import { Bell, Settings as SettingsIcon, LogOut, User } from "lucide-react";
 import { Logo } from "./Logo";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getNotificationsFn } from "@/lib/interaction.server";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
@@ -19,28 +19,49 @@ export function TopBar() {
     queryKey: ['notifications', user?.id],
     queryFn: () => getNotificationsFn({ data: user!.id }),
     enabled: !!user?.id,
+    refetchInterval: 10000,
   });
 
+  const queryClient = useQueryClient();
   const unreadCount = notifications?.filter((n: any) => !n.read).length || 0;
 
   useEffect(() => {
-    if (user?.id) {
-      const channel = supabase.channel(`topbar-notifications-${user.id}`)
-        .on("postgres_changes", { event: "INSERT", schema: "public", table: "Notification" }, (payload) => {
-          if (payload.new?.userId === user.id) {
-            refetch();
-            if (payload.new.actorId !== user.id) {
-              toast("You have a new notification!");
-              playNotificationSound();
-            }
+    if (!user?.id) return;
+    const channel = supabase
+      .channel(`topbar-notifications-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "Notification",
+          filter: `userId=eq.${user.id}`,
+        },
+        (payload) => {
+          // Immediately bump the unread badge without waiting for a refetch
+          // by injecting a placeholder into the cache. The real data (with actor)
+          // arrives when the query refetches in the background.
+          queryClient.setQueryData(
+            ["notifications", user.id],
+            (old: any[]) => [
+              { ...payload.new, actor: { username: "", avatar: null }, read: false },
+              ...(old ?? []),
+            ]
+          );
+          // Then refetch in background to get full actor data
+          queryClient.invalidateQueries({ queryKey: ["notifications", user.id] });
+
+          if (payload.new?.actorId !== user.id) {
+            toast("You have a new notification!");
+            playNotificationSound();
           }
-        })
-        .subscribe();
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
-  }, [user?.id, refetch]);
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, queryClient]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

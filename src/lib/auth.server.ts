@@ -192,3 +192,49 @@ export const getProfileByUsernameFn = createServerFn({ method: "POST" })
       isFollowingMe: user.following ? user.following.length > 0 : false,
     };
   });
+
+export const deleteAccountFn = createServerFn({ method: "POST" })
+  .validator((userId: string) => userId)
+  .handler(async ({ data: userId }) => {
+    // 1. Fetch all posts with media for Cloudinary cleanup
+    const posts = await prisma.post.findMany({
+      where: { userId },
+      select: { id: true, image: true, video: true },
+    });
+
+    // 2. Delete Cloudinary media (non-blocking)
+    const { deleteMedia, getPublicIdFromUrl } = await import("./cloudinary.server");
+    await Promise.allSettled(
+      posts.flatMap((post) => {
+        const jobs: Promise<any>[] = [];
+        if (post.image) {
+          const id = getPublicIdFromUrl(post.image);
+          if (id) jobs.push(deleteMedia(id, "image"));
+        }
+        if (post.video) {
+          const id = getPublicIdFromUrl(post.video);
+          if (id) jobs.push(deleteMedia(id, "video"));
+        }
+        return jobs;
+      }),
+    );
+
+    // 3. Delete from Prisma — cascade removes all related rows
+    await prisma.user.delete({ where: { id: userId } });
+
+    // 4. Delete from Supabase Auth using admin API.
+    try {
+      const { getSupabaseAdmin } = await import("./supabase-admin.server");
+      const adminClient = getSupabaseAdmin();
+      const { error } = await adminClient.auth.admin.deleteUser(userId);
+      if (error) {
+        console.error("[deleteAccount] Failed to delete auth user:", error.message);
+        return { success: true, authDeleted: false };
+      }
+    } catch (adminErr: any) {
+      console.error("[deleteAccount] Admin client error:", adminErr.message);
+      return { success: true, authDeleted: false };
+    }
+
+    return { success: true, authDeleted: true };
+  });

@@ -80,8 +80,12 @@ export const createPostFn = createServerFn({ method: "POST" })
 export const getHashtagsFn = createServerFn({ method: "GET" })
   .handler(async () => {
     return await prisma.hashtag.findMany({
+      where: {
+        // Only return hashtags that have at least one associated post
+        posts: { some: {} },
+      },
       take: 10,
-      orderBy: { posts: { _count: "desc" } }
+      orderBy: { posts: { _count: "desc" } },
     });
   });
 
@@ -253,5 +257,11 @@ export const deletePostFn = createServerFn({ method: "POST" })
     await prisma.post.delete({
       where: { id: data.postId },
     });
+
+    // Clean up orphaned hashtags (hashtags with no remaining posts)
+    await prisma.hashtag.deleteMany({
+      where: { posts: { none: {} } },
+    });
+
     return { success: true };
   });

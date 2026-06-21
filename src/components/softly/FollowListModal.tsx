@@ -142,10 +142,10 @@ export function FollowListModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
       onClick={handleBackdrop}
     >
-      <div className="relative w-full max-w-md bg-cream rounded-t-3xl md:rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 md:slide-in-from-bottom-0 fade-in duration-200">
+      <div className="relative w-full max-w-md bg-cream rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-border/30">
           <div className="flex gap-1 bg-nest-foreground/10 p-1 rounded-full">

@@ -7,13 +7,14 @@ import { getMessagesFn, sendMessageFn, markMessagesAsReadFn } from "@/lib/messag
 import { useAuth } from "@/contexts/AuthContext";
 import { EmojiPicker } from "@/components/softly/EmojiPicker";
 import { playMessageSound } from "@/lib/sounds";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/_shell/messages/$messageId")({
   head: () => ({ meta: [{ title: "Chat — Softlynest" }] }),
   component: ChatRoom,
 });
 
-const MY_AVATAR = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop";
+const MY_AVATAR = ""; // unused — avatar now fetched from DB via myProfile
 
 function ChatRoom() {
   const { messageId } = Route.useParams();
@@ -24,6 +25,17 @@ function ChatRoom() {
     queryKey: ['profile', messageId],
     queryFn: () => getProfileByUsernameFn({ data: { username: messageId } }),
   });
+
+  // Fetch current user's own profile from DB to get correct avatar
+  const { data: myProfile } = useQuery({
+    queryKey: ['my-profile', user?.id],
+    queryFn: () => getProfileByUsernameFn({ data: { username: user!.user_metadata?.username } }),
+    enabled: !!user?.user_metadata?.username,
+  });
+
+  const myAvatar =
+    myProfile?.avatar ||
+    `https://api.dicebear.com/9.x/thumbs/svg?seed=${user?.user_metadata?.username || "me"}&backgroundColor=ffd5dc,c0aede,b6e3f4,d1d4f9,ffdfbf`;
 
   const conversation = targetProfile ? {
     user: targetProfile.displayName || targetProfile.username,
@@ -48,25 +60,44 @@ function ChatRoom() {
     }
   }, [user?.id, targetProfile?.id, dbMessages.length]);
 
+  // Play sound immediately when a new message arrives via realtime,
+  // without waiting for the 3-second polling interval.
+  useEffect(() => {
+    if (!user?.id || !targetProfile?.id) return;
+    const channel = supabase
+      .channel(`chat-sound-${user.id}-${targetProfile.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "Message",
+          filter: `receiverId=eq.${user.id}`,
+        },
+        (payload) => {
+          // Only play if message is from this specific conversation
+          if (payload.new?.senderId === targetProfile.id) {
+            playMessageSound();
+            queryClient.invalidateQueries({
+              queryKey: ["messages", user.id, targetProfile.id],
+            });
+          }
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, targetProfile?.id, queryClient]);
+
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const msgListRef = useRef<HTMLDivElement>(null);
   const prevMessageCountRef = useRef<number>(0);
 
-  // Play sound when a new message arrives from the other person
-  useEffect(() => {
-    const prevCount = prevMessageCountRef.current;
-    const newCount = dbMessages.length;
-    if (prevCount > 0 && newCount > prevCount) {
-      // Check if the newest message is from the other person (not us)
-      const newest = dbMessages[dbMessages.length - 1] as any;
-      if (newest && newest.senderId !== user?.id) {
-        playMessageSound();
-      }
-    }
-    prevMessageCountRef.current = newCount;
-  }, [dbMessages.length, dbMessages, user?.id]);
+  // Sound is handled by the realtime channel above — remove polling-based
+  // sound to prevent double-play and false trigger when room first loads.
 
   // Show scrollbar only when content is actually scrollable
   useEffect(() => {
@@ -207,7 +238,7 @@ function ChatRoom() {
               {!isMe ? (
                 <img src={conversation.avatar} alt={conversation.user} className="w-8 h-8 rounded-full object-cover shrink-0 mb-0.5" />
               ) : (
-                <img src={user?.user_metadata?.avatar_url || MY_AVATAR} alt="me" className="w-8 h-8 rounded-full object-cover shrink-0 mb-0.5" />
+                <img src={myAvatar} alt="me" className="w-8 h-8 rounded-full object-cover shrink-0 mb-0.5" />
               )}
 
               {/* Bubble */}

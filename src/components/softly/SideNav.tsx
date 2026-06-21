@@ -39,29 +39,48 @@ export function SideNav() {
     queryKey: ["notifications", user?.id],
     queryFn: () => getNotificationsFn({ data: user!.id }),
     enabled: !!user?.id,
+    refetchInterval: 10000,
   });
 
   const { data: unreadMessagesCount = 0 } = useQuery({
     queryKey: ["unread-messages", user?.id],
     queryFn: () => getUnreadMessagesCountFn({ data: user!.id }),
     enabled: !!user?.id,
-    refetchInterval: 5000, // Poll every 5 seconds
+    refetchInterval: 5000,
   });
 
   const unreadNotificationsCount = notifications?.filter((n: any) => !n.read).length || 0;
 
   useEffect(() => {
     if (!user?.id) return;
-    const channel = supabase.channel(`sidenav-notifications-${user.id}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "Notification" }, (payload) => {
-        if (payload.new?.userId === user.id) {
-          refetch();
+    const channel = supabase
+      .channel(`sidenav-notifications-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "Notification",
+          filter: `userId=eq.${user.id}`,
+        },
+        (payload) => {
+          // Optimistically bump badge immediately
+          queryClient.setQueryData(
+            ["notifications", user.id],
+            (old: any[]) => [
+              { ...payload.new, actor: { username: "", avatar: null }, read: false },
+              ...(old ?? []),
+            ]
+          );
+          queryClient.invalidateQueries({ queryKey: ["notifications", user.id] });
           playNotificationSound();
         }
-      })
+      )
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [user?.id, refetch]);
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, queryClient]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -110,7 +129,7 @@ export function SideNav() {
                       <RenderIcon className="w-5 h-5" strokeWidth={2.5} fill={active ? "currentColor" : "none"} />
                     )}
                     {to === "/notifications" && unreadNotificationsCount > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                      <span className="absolute -top-1 -right-0 flex h-2 w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-pink"></span>
                       </span>

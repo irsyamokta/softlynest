@@ -163,8 +163,12 @@ function Register() {
                     type="text"
                     required
                     value={username}
-                    onChange={(e) => { setUsername(e.target.value); clearError("username"); }}
+                    onChange={(e) => { setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, "")); clearError("username"); }}
                     placeholder="e.g., softlyuser"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    autoComplete="username"
+                    spellCheck={false}
                     className={inputClass("username")}
                   />
                 </label>
