@@ -6,3 +6,6 @@ dist
 .env
 *.log
 .next
+# Lock file generated on Windows has wrong platform binaries.
+# Let npm resolve fresh inside the Linux container.
+package-lock.json

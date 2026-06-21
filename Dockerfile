@@ -12,10 +12,12 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy package files
-COPY package.json package-lock.json* ./
+COPY package.json ./
 
-# Install all deps, skip postinstall (prisma generate runs after schema is copied)
-RUN npm ci --ignore-scripts
+# Install all deps fresh — package-lock.json dikecualikan via .dockerignore
+# karena dibuat di Windows dan hanya berisi binary platform Windows.
+# npm install di sini akan resolve binary Linux yang benar.
+RUN npm install --ignore-scripts
 
 # Copy prisma schema then generate client
 COPY prisma ./prisma/
