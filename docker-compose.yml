@@ -1,0 +1,29 @@
+services:
+  app:
+    # Ganti dengan username GitHub dan nama repo kamu
+    # Contoh: ghcr.io/johndoe/softlynest:latest
+    image: ghcr.io/irsyamokta/softlynest:latest
+    container_name: softlynest
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOST: 0.0.0.0
+      DATABASE_URL: ${DATABASE_URL}
+      DIRECT_URL: ${DIRECT_URL}
+      CLOUDINARY_KEY: ${CLOUDINARY_KEY}
+      CLOUDINARY_SECRET: ${CLOUDINARY_SECRET}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_URL: ${CLOUDINARY_URL}
+      VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+      VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
+    networks:
+      - odoonet
+
+networks:
+  # Network ini harus sudah dibuat di VPS:
+  # docker network create proxy
+  odoonet:
+    external: true
