@@ -41,6 +41,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Test build (no push, full logs)
+        run: |
+          docker build --progress=plain --no-cache -t softlynest-test . 2>&1
+        continue-on-error: false
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
@@ -50,8 +55,10 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          # Tampilkan log build secara detail
           provenance: false
+          # Tampilkan semua log build secara detail
+          build-args: |
+            BUILDKIT_PROGRESS=plain
 
       - name: Deploy on VPS via SSH
         uses: appleboy/ssh-action@v1.0.3

@@ -1,46 +1,51 @@
 # ── Stage 1: Builder ──────────────────────────────────────────────────────────
-FROM node:22-alpine AS builder
+FROM node:22-bookworm-slim AS builder
 
 WORKDIR /app
 
-# Install build tools needed by some native modules
-RUN apk add --no-cache python3 make g++
+# Install system deps needed by native modules (node-gyp, canvas, etc.)
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    openssl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy package files first (layer cache)
+# Copy package files
 COPY package.json package-lock.json* ./
 
-# Install all deps — skip postinstall (prisma generate) for now
-# to avoid needing DATABASE_URL at build time
+# Install all deps, skip postinstall (prisma generate runs after schema is copied)
 RUN npm ci --ignore-scripts
 
-# Copy prisma schema and generate client
+# Copy prisma schema then generate client
 COPY prisma ./prisma/
 COPY prisma.config.ts ./
 
-# Generate Prisma client without needing a real DB connection
+# Generate Prisma client — needs a DATABASE_URL but only for config parsing
+ENV DATABASE_URL=postgresql://x:x@localhost:5432/x
+ENV DIRECT_URL=postgresql://x:x@localhost:5432/x
 RUN npx prisma generate
 
-# Copy rest of source
+# Copy full source
 COPY . .
 
-# Build with node-server preset
+# Build
 ENV NITRO_PRESET=node-server
-# Dummy env vars so any dotenv reads during build don't crash
-ENV DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy
-ENV DIRECT_URL=postgresql://dummy:dummy@localhost:5432/dummy
-
+# Increase Node.js heap for large builds
+ENV NODE_OPTIONS=--max-old-space-size=4096
 RUN npm run build
 
 # ── Stage 2: Production runner ─────────────────────────────────────────────────
-FROM node:22-alpine AS runner
+FROM node:22-bookworm-slim AS runner
 
 WORKDIR /app
+
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOST=0.0.0.0
 
-# Nitro node-server outputs to .output/
 COPY --from=builder /app/.output ./.output
 
 EXPOSE 3000
