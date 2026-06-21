@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-CVYwdr5Z.js";import{t}from"./ProfileContent-DrA-0AiH.js";var n=e();function r(){return(0,n.jsx)(`div`,{className:`w-full`,children:(0,n.jsx)(t,{})})}export{r as component};
