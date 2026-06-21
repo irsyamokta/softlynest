@@ -1,10 +1,8 @@
-// @lovable.dev/vite-tanstack-config already includes base plugins (do not duplicate)
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
   tanstackStart: {
     server: {
-      // Entry SSR server kamu
       entry: "server",
     },
   },
@@ -27,7 +25,6 @@ export default defineConfig({
         "@prisma/client",
         "@prisma/adapter-pg",
         "pg",
-        "cloudinary",
       ],
     },
   },
