@@ -1,5 +1,11 @@
 {
-  "builds": [
-    { "src": "package.json", "use": "@vercel/node" }
+  "version": 2,
+  "functions": {
+    "server.ts": {
+      "runtime": "edge"
+    }
+  },
+  "routes": [
+    { "src": "/(.*)", "dest": "server.ts" }
   ]
 }

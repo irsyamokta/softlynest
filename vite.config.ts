@@ -3,7 +3,7 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 export default defineConfig({
   tanstackStart: {
     server: {
-      entry: "server",
+      entry: "server/entry.ts",
     },
   },
 
@@ -17,14 +17,6 @@ export default defineConfig({
         "pg-pool",
         "dotenv",
         "cloudinary",
-      ],
-    },
-
-    optimizeDeps: {
-      exclude: [
-        "@prisma/client",
-        "@prisma/adapter-pg",
-        "pg",
       ],
     },
   },
