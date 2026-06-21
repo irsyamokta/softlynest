@@ -1,6 +1,6 @@
 import { i as TSS_SERVER_FUNCTION } from "./esm-Dova13aH.mjs";
 import { t as PrismaPgAdapterFactory } from "../_libs/@prisma/adapter-pg.mjs";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "./_prisma-client-shim.mjs";
 //#region node_modules/.nitro/vite/services/ssr/assets/db.server-HSC81waZ.js
 var createServerRpc = (serverFnMeta, splitImportFn) => {
 	const url = "/_serverFn/" + serverFnMeta.id;
