@@ -47,7 +47,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover, interactive-widget=resizes-content" },
       { title: "Softlynest — A Safe Place to Breathe, Share, and Heal" },
       { name: "description", content: "Softlynest is a gentle social space for sharing, healing, and supporting one another." },
       { name: "author", content: "Softlynest" },

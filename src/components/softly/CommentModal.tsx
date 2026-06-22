@@ -20,6 +20,7 @@ export function CommentModal({ post, onClose }: CommentModalProps) {
   const [isClosing, setIsClosing] = useState(false);
   const [loading, setLoading] = useState(true);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -31,6 +32,7 @@ export function CommentModal({ post, onClose }: CommentModalProps) {
     const channel = supabase.channel(`comments-${post.id}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "Comment" }, (payload) => {
         if (payload.new?.postId === post.id) {
+          // Fetch real data to replace any optimistic entries and catch comments from other users
           getCommentsFn({ data: post.id }).then(setComments);
         }
       })
@@ -63,6 +65,11 @@ export function CommentModal({ post, onClose }: CommentModalProps) {
     el.style.height = Math.min(el.scrollHeight, 120) + "px";
   }, [draft]);
 
+  // Scroll to bottom when new comment appears
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [comments.length]);
+
   const insertEmoji = (emoji: string) => {
     const el = textareaRef.current;
     if (!el) { setDraft((v) => v + emoji); return; }
@@ -80,13 +87,34 @@ export function CommentModal({ post, onClose }: CommentModalProps) {
     if (!draft.trim()) return;
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { toast.error("Please login to comment"); return; }
-      const text = draft;
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) { toast.error("Please login to comment"); return; }
+
+      const text = draft.trim();
       setDraft("");
       if (textareaRef.current) textareaRef.current.style.height = "auto";
-      await commentPostFn({ data: { postId: post.id, userId: user.id, text } });
+
+      // Optimistic update — show comment immediately like chat
+      const optimisticComment = {
+        id: `optimistic-${Date.now()}`,
+        text,
+        createdAt: new Date().toISOString(),
+        user: {
+          username: authUser.user_metadata?.username || authUser.email,
+          avatar: authUser.user_metadata?.avatar_url || null,
+        },
+        _optimistic: true,
+      };
+      setComments((prev) => [...prev, optimisticComment]);
+
+      // Persist to server
+      await commentPostFn({ data: { postId: post.id, userId: authUser.id, text } });
+
+      // Replace optimistic entry with real data from server
+      getCommentsFn({ data: post.id }).then(setComments);
     } catch (err: any) {
+      // Rollback optimistic update on error
+      setComments((prev) => prev.filter((c) => !c._optimistic));
       toast.error(err.message || "Failed to comment");
     }
   };
@@ -136,6 +164,7 @@ export function CommentModal({ post, onClose }: CommentModalProps) {
             <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Comments</p>
           </div>
           <CommentList comments={comments} loading={loading} currentUser={user} />
+          <div ref={bottomRef} />
         </div>
         <form onSubmit={submit} className="bg-nest px-3 py-3 flex items-end gap-2 shrink-0">
           <EmojiPicker onEmojiSelect={insertEmoji} buttonClassName="text-cream/80 hover:text-white transition cursor-pointer p-2" />
@@ -198,6 +227,7 @@ export function CommentModal({ post, onClose }: CommentModalProps) {
             </div>
             <ul className="space-y-3">
               <CommentList comments={comments} loading={loading} currentUser={user} />
+              <div ref={bottomRef} />
             </ul>
           </div>
           <form onSubmit={submit} className="bg-muted rounded-2xl mx-4 mb-4 px-3 py-3 flex items-end gap-2 shrink-0">

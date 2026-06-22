@@ -300,20 +300,26 @@ export function SettingsContent() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[11px] font-extrabold text-muted-foreground uppercase pl-1">
-                Username
-              </label>
+              <div className="flex items-center justify-between pl-1">
+                <label className="text-[11px] font-extrabold text-muted-foreground uppercase">
+                  Username
+                </label>
+                <span className={`text-[11px] font-bold ${username.length >= 15 ? "text-red-400" : "text-muted-foreground"}`}>
+                  {username.length}/15
+                </span>
+              </div>
               <input
                 type="text"
                 value={username}
                 onChange={(e) =>
-                  setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, ""))
+                  setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, "").slice(0, 15))
                 }
                 placeholder="Your username"
                 autoCapitalize="none"
                 autoCorrect="off"
                 autoComplete="username"
                 spellCheck={false}
+                maxLength={15}
                 className="w-full bg-muted rounded-xl px-4 py-3 text-sm font-semibold outline-none text-black"
               />
             </div>
@@ -360,17 +366,19 @@ export function SettingsContent() {
         <NotificationSettings />
 
         <div className="mt-8">
-          <p className="text-[11px] font-extrabold text-red-500 uppercase tracking-wider mb-3 pl-1">
+          <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider mb-3 pl-1">
             Danger Zone
           </p>
           <button
-            onClick={() => setDeleteModalOpen(true)}
             disabled
-            className="w-full rounded-xl border-2 border-red-100 bg-red-50/50 text-red-500 font-bold py-3.5 flex items-center justify-center gap-2 transition hover:bg-red-200 hover:text-white hover:border-red-200 cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-xl border-2 border-border bg-muted text-muted-foreground font-bold py-3.5 flex items-center justify-center gap-2 cursor-not-allowed opacity-50"
           >
             <Trash2 className="w-4 h-4" strokeWidth={2.5} />
-            {deleting ? "Deleting account…" : "Delete Account"}
+            Delete Account
           </button>
+          <p className="text-[11px] text-muted-foreground pl-1 mt-2">
+            Account deletion is temporarily unavailable.
+          </p>
         </div>
       </div>
 

@@ -92,12 +92,28 @@
 
 @layer base {
   * { border-color: var(--color-border); }
-  html, body { height: 100%; }
+
+  html {
+    height: 100%;
+    /* Prevent elastic overscroll on iOS that causes layout shift */
+    overscroll-behavior: none;
+  }
+
   body {
+    /* Use dvh so layout recalculates when browser chrome shows/hides */
+    height: 100dvh;
+    /* Prevent body from scrolling — the inner scroll containers handle it */
+    overflow: hidden;
+    overscroll-behavior: none;
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    /* Respect device safe areas (notch, home bar) */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 }
 

@@ -11,32 +11,47 @@ function isNotifEnabled() {
   catch { return true; }
 }
 
-// ── Badge helper ──────────────────────────────────────────────────────────────
+// ── Badge via Service Worker (works on Android Chrome PWA) ───────────────────
 function setBadge(count: number) {
-  if (!("setAppBadge" in navigator)) return;
-  if (count > 0) {
-    (navigator as any).setAppBadge(count).catch(() => {});
-  } else {
-    (navigator as any).clearAppBadge().catch(() => {});
+  // 1. Try direct navigator API (desktop Chrome, some Android)
+  if ("setAppBadge" in navigator) {
+    if (count > 0) {
+      (navigator as any).setAppBadge(count).catch(() => {});
+    } else {
+      (navigator as any).clearAppBadge().catch(() => {});
+    }
+  }
+
+  // 2. Also send to service worker (more reliable on Android PWA)
+  if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      type: "SET_BADGE",
+      count,
+    });
   }
 }
 
-// Request notification permission (needed for badge API on some platforms)
-async function requestNotificationPermission() {
-  if (!("Notification" in window)) return;
-  if (Notification.permission === "default") {
-    await Notification.requestPermission();
+// ── Show OS notification via SW (works when app is in background) ─────────────
+export function showPushNotification(title: string, body: string) {
+  if (!isNotifEnabled()) return;
+  if (Notification.permission !== "granted") return;
+
+  if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      type: "SHOW_NOTIFICATION",
+      title,
+      body,
+      icon: "/icons/icon-192x192.png",
+    });
+  } else if ("Notification" in window && Notification.permission === "granted") {
+    // Fallback: direct notification (works when app is open)
+    new Notification(title, { body, icon: "/icons/icon-192x192.png" });
   }
 }
 
 export function useAppBadge() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-
-  // Request permission on mount (needed for badge on Android/iOS PWA)
-  useEffect(() => {
-    requestNotificationPermission();
-  }, []);
 
   const { data: unreadMessagesCount = 0 } = useQuery({
     queryKey: ["unread-messages", user?.id],
@@ -70,48 +85,40 @@ export function useAppBadge() {
 
     const channel = supabase
       .channel(`badge-realtime-${user.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "Message",
-          filter: `receiverId=eq.${user.id}`,
-        },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ["unread-messages", user.id] });
+      .on("postgres_changes", {
+        event: "INSERT",
+        schema: "public",
+        table: "Message",
+        filter: `receiverId=eq.${user.id}`,
+      }, () => {
+        queryClient.invalidateQueries({ queryKey: ["unread-messages", user.id] });
+      })
+      .on("postgres_changes", {
+        event: "INSERT",
+        schema: "public",
+        table: "Notification",
+        filter: `userId=eq.${user.id}`,
+      }, (payload) => {
+        queryClient.invalidateQueries({ queryKey: ["notifications", user.id] });
+        // Show OS notification when app is in background
+        if (document.visibilityState === "hidden") {
+          showPushNotification("Softlynest", "You have a new notification 🔔");
         }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "Notification",
-          filter: `userId=eq.${user.id}`,
-        },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ["notifications", user.id] });
-        }
-      )
+      })
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, [user?.id, queryClient]);
 
-  // Clear badge when app comes back to foreground
+  // Refresh counts when app comes back to foreground
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
-        // Refetch to get latest counts when user returns to app
         queryClient.invalidateQueries({ queryKey: ["unread-messages", user?.id] });
         queryClient.invalidateQueries({ queryKey: ["notifications", user?.id] });
       }
     };
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () =>
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [user?.id, queryClient]);
 }
